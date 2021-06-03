@@ -21,13 +21,13 @@ public class Input {
     Input() {
         offset = new int[3];
         // Modularity not implemented in this version to the file input version v0.1
-        File input_message = new File("message/Input");
-        File input_rotor1 = new File("Rotors/Rotor1");
-        File input_rotor2 = new File("Rotors/Rotor2");
-        File input_rotor3 = new File("Rotors/Rotor3");
-        File input_reflector = new File("Settings/Reflector");
-        File input_plug = new File("Settings/Plug");
-        File input_rotorSettings = new File("Settings/RotorSettings");
+        File input_message = new File("EnigmaEncoder/Message/Input");
+        File input_rotor1 = new File("EnigmaEncoder/Rotors/Rotor1");
+        File input_rotor2 = new File("EnigmaEncoder/Rotors/Rotor2");
+        File input_rotor3 = new File("EnigmaEncoder/Rotors/Rotor3");
+        File input_reflector = new File("EnigmaEncoder/RotorSettings/Reflector");
+        File input_plug = new File("EnigmaEncoder/RotorSettings/Plug");
+        File input_rotorSettings = new File("EnigmaEncoder/RotorSettings/RotorSettings");
         try {
             Scanner sc1 = new Scanner(input_message);
             Scanner sc2 = new Scanner(input_rotor1);
@@ -91,12 +91,16 @@ public class Input {
 
         ENCODE_MESSAGE();
         DECODE_MESSAGE();
+        System.out.println("Encoded message : " + String.valueOf(messageChar));
+        ENCODE_MESSAGE();
+        DECODE_MESSAGE();
+        System.out.println("Decoded message : " + String.valueOf(messageChar));
 
         System.out.println();
         System.out.println(messageChar);
 
         try {
-            FileWriter writeToOutput = new FileWriter("message/Output");
+            FileWriter writeToOutput = new FileWriter("EnigmaEncoder/Message/Output");
             writeToOutput.write(String.valueOf(messageChar, 0, messageChar.length));
             writeToOutput.close();
         } catch (IOException ex) {
@@ -119,6 +123,12 @@ public class Input {
         RotorCircMapEncode(rotor1_ch, 2);
         RotorCircMapEncode(rotor2_ch, 1);
         RotorCircMapEncode(rotor3_ch, 0);
+        RotorCircMapReflector(reflector);
+        RotorCircMapEncode(rotor3_ch, 0);
+        RotorCircMapEncode(rotor2_ch, 1);
+        RotorCircMapEncode(rotor1_ch, 2);
+        // reflector
+        // ...reverse rotor map
     }
 
     public static void DECODE_MESSAGE() {
@@ -136,9 +146,14 @@ public class Input {
         RotateRight(rotor3_ch, offset[0]);
 
         // reflector here
+        RotorCircMapDecode(rotor1_ch, 2);
+        RotorCircMapDecode(rotor2_ch, 1);
+        RotorCircMapDecode(rotor3_ch, 0);
+        RotorCircMapReflector(reflector);
         RotorCircMapDecode(rotor3_ch, 0);
         RotorCircMapDecode(rotor2_ch, 1);
         RotorCircMapDecode(rotor1_ch, 2);
+
     }
 
     public static void RotorCircMapDecode(char[] rotor, int count) { // this works only for decoding
@@ -161,7 +176,7 @@ public class Input {
         /*
          * Maps the input letter to the rotor settings as per the notch
          * 
-         *                      ****ALGORITHM****
+         * ****ALGORITHM****
          * 
          * The encryption map to be considered for each rotor is stored at a char array
          * of size 26 corresponding to the letters of English alphabet
@@ -185,10 +200,10 @@ public class Input {
         }
     }
 
-    public static void RotorCircMapReflector(String rotor, int count) { // under construction
+    public static void RotorCircMapReflector(String reflector) { // under construction
         for (int i = 0; i < messageChar.length; i++) {
             if ((int) messageChar[i] != 32) {
-                int sum = (int) rotor.charAt(messageChar[i] - 65);
+                int sum = (int) reflector.charAt(messageChar[i] - 65);
                 messageChar[i] = (char) sum;
             }
         }
